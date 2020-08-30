@@ -5,7 +5,7 @@ import Vertex
 
 
 class Edge:
-    def __init__(self, start: Vertex, end: Vertex, weight: float = 0, directed=True):
+    def __init__(self, start: str, end: str, weight: float = 0, directed=True):
         """
         :param start: The 'from' Vertex
         :param end: The 'to' Vertexv
@@ -16,3 +16,18 @@ class Edge:
         self.end = end
         self.weight = weight
         self.directed = directed
+
+    def reverse(self):
+        """
+        reverse a directed edge
+        :return: The edge reversed
+        """
+        if self.directed:
+            tmp = self.start
+            self.start = self.end
+            self.end = tmp
+            return self
+        else:
+            return
+
+

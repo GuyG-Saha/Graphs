@@ -7,6 +7,8 @@ from Edge import Edge
 from Vertex import Vertex
 from exceptions import GraphException, VertexUnavailable
 
+__all__ = ['Graph']
+
 
 class Graph:
     def __init__(self, description: str):
@@ -77,12 +79,17 @@ class Graph:
             path = path + [start]
             if start == end:
                 return path
+            if end in self.graph[start]:
+                path.append(end)
+                return path
+            shortest_path = None
             for vertex in self.graph[start]:
                 if vertex not in path:
                     new_path = self.shortest_path(vertex, end, weighted, path)
                     if new_path:
-                        return new_path
-                    return None
+                        if not shortest_path or len(new_path) < len(shortest_path):
+                            shortest_path = new_path
+            return shortest_path
         else:
             print("TBD: find cheapest path between 2 vertices")
 
