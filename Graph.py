@@ -50,11 +50,11 @@ class Graph:
         :param start: str
         :param end: str
         :return: Weight: float
+        if no such weight return 0
         """
-        try:
-            return self.weights[(start, end)]
-        except VertexUnavailable as ex:
-            return -1
+        if start == end:
+            return 0
+        return self.weights.get((start, end), 0)
 
     def search_vertex(self, symbol: str) -> bool:
         """
@@ -63,6 +63,42 @@ class Graph:
         :return: Boolean
         """
         return symbol in self.vertices
+
+    def _dijkstra_algorithm(self, start: str, end: str):
+        """
+        Implementation of Dijkstra's algorithm to find shortest weighted path
+        :param start: Start Vertex
+        :param end: Destination Vertex
+        :return: TBD
+        """
+        queue = []
+        dist = {}
+        prev = {}
+        visited = set()
+        vertices_list = list(self.vertices)
+        vertices_list.sort()
+        for v in vertices_list:
+            dist[v] = float('inf')
+            prev[v] = None
+            queue.append(v)
+
+        dist[start] = 0
+
+        while queue:
+            u = queue.pop(0)
+            if not dist[u]:
+                dist[u] = self.get_edge_weight(start, u)
+            visited.add(u)
+            try:
+                for v in self.graph[u]:
+                    if v not in visited:
+                        alt = dist[u] + self.get_edge_weight(u, v)
+                        if alt < dist[v]:
+                            dist[v] = alt
+                            prev[v] = u
+            except KeyError as ex:
+                return dist[end]
+        return dist[end]
 
     def shortest_path(self, start: str, end: str, weighted: bool = False, path: List = []) -> List:
         """
@@ -75,6 +111,7 @@ class Graph:
         """
         if not self.search_vertex(start) or not self.search_vertex(end):
             raise VertexUnavailable("One of vertices is not found in the graph")
+
         if not weighted:
             path = path + [start]
             if start == end:
@@ -91,7 +128,20 @@ class Graph:
                             shortest_path = new_path
             return shortest_path
         else:
+            """
+            shortest_paths = {start: (None, 0)}
+            current_node = start
+            visited = set()
+
+            while current_node != end:
+                visited.add(current_node)
+                destinations = self.graph[current_node]
+                weight_so_far = self.get_edge_weight(start, current_node)
+                for next_node in destinations:
+                    weight = self.get_edge_weight(current_node, next_node) + weight_so_far
             print("TBD: find cheapest path between 2 vertices")
+            """
+            return self._dijkstra_algorithm(start, end)
 
     def __str__(self):
         desc_str = self.description + ' created at ' + str(self.creation_time) + ' and has ' + str(self.num_edges) + \

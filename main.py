@@ -14,5 +14,9 @@ Gr.add_new_edge('D', 'F', 2.4)
 
 
 print(Gr.graph)
-l = Gr.shortest_path('A', 'E')
-print(l)
+
+l_1 = Gr.shortest_path('A', 'F')
+print(l_1)
+
+
+print(Gr.shortest_path('A', 'F', True))
