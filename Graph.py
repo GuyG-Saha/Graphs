@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import List
 
 from Edge import Edge
-from Vertex import Vertex
 from exceptions import GraphException, VertexUnavailable
 
 __all__ = ['Graph']
@@ -64,12 +63,12 @@ class Graph:
         """
         return symbol in self.vertices
 
-    def _dijkstra_algorithm(self, start: str, end: str):
+    def _dijkstra_algorithm(self, start: str, end: str) -> float:
         """
         Implementation of Dijkstra's algorithm to find shortest weighted path
         :param start: Start Vertex
         :param end: Destination Vertex
-        :return: TBD
+        :return: Numeric float value of cheapest distance to destination vertex
         """
         queue = []
         dist = {}
@@ -100,7 +99,7 @@ class Graph:
                 return dist[end]
         return dist[end]
 
-    def shortest_path(self, start: str, end: str, weighted: bool = False, path: List = []) -> List:
+    def shortest_path(self, start: str, end: str, weighted: bool = False, path: List = []) -> [List, float]:
         """
         Perform shortest or cheapest path search in graph
         :param path: The result path which can be instantiated at first call
@@ -128,19 +127,6 @@ class Graph:
                             shortest_path = new_path
             return shortest_path
         else:
-            """
-            shortest_paths = {start: (None, 0)}
-            current_node = start
-            visited = set()
-
-            while current_node != end:
-                visited.add(current_node)
-                destinations = self.graph[current_node]
-                weight_so_far = self.get_edge_weight(start, current_node)
-                for next_node in destinations:
-                    weight = self.get_edge_weight(current_node, next_node) + weight_so_far
-            print("TBD: find cheapest path between 2 vertices")
-            """
             return self._dijkstra_algorithm(start, end)
 
     def __str__(self):
