@@ -11,12 +11,17 @@ Gr.add_new_edge('C', 'D', 2.3)
 Gr.add_new_edge('D', 'E', 4.7)
 Gr.add_new_edge('E', 'F', 4.5)
 Gr.add_new_edge('D', 'F', 2.4)
+Gr.add_new_edge('F', 'G', 8)
+Gr.add_new_edge('A', 'G', 8.8)
+Gr.add_new_edge('G', 'H', 6.4)
 
 
 print(Gr.graph)
 
-l_1 = Gr.shortest_path('A', 'F')
+l_1 = Gr.shortest_path('A', 'H')
 print(l_1)
 
 
-print(Gr.shortest_path('A', 'F', True))
+print(Gr.shortest_path('A', 'H', True))
+
+print(Gr.topological_sort())

@@ -32,8 +32,8 @@ class Graph:
         :param weight: Float value for weighted edge
         :return: Edge object within the graph
         """
-        self.vertices.add(start)
-        self.vertices.add(end)
+        self.vertices.add(start) if start not in self.vertices else ''
+        self.vertices.add(end) if end not in self.vertices else ''
         if start in self.graph.keys():
             self.graph[start].append(end)
         else:
@@ -91,9 +91,9 @@ class Graph:
             try:
                 for v in self.graph[u]:
                     if v not in visited:
-                        alt = dist[u] + self.get_edge_weight(u, v)
-                        if alt < dist[v]:
-                            dist[v] = alt
+                        computed_weight = dist[u] + self.get_edge_weight(u, v)
+                        if computed_weight < dist[v]:
+                            dist[v] = computed_weight
                             prev[v] = u
             except KeyError as ex:
                 return dist[end]
@@ -115,19 +115,59 @@ class Graph:
             path = path + [start]
             if start == end:
                 return path
-            if end in self.graph[start]:
-                path.append(end)
-                return path
+            try:
+                if end in self.graph[start]:
+                    path.append(end)
+                    return path
+            except KeyError as ex:
+                pass
             shortest_path = None
-            for vertex in self.graph[start]:
-                if vertex not in path:
-                    new_path = self.shortest_path(vertex, end, weighted, path)
-                    if new_path:
-                        if not shortest_path or len(new_path) < len(shortest_path):
-                            shortest_path = new_path
+            try:
+                for vertex in self.graph[start]:
+                    if vertex not in path:
+                        new_path = self.shortest_path(vertex, end, weighted, path)
+                        if new_path:
+                            if not shortest_path or len(new_path) < len(shortest_path):
+                                shortest_path = new_path
+            except KeyError as ex:
+                pass
             return shortest_path
         else:
             return self._dijkstra_algorithm(start, end)
+
+    def _topological_sort_helper(self, i, visited, stack=[]):
+        """
+        Helper recursive function for topological sort
+        :param i: index of current vertex to handle
+        :param visited: list of visited vertices
+        :param stack: utility data structure
+        :return:
+        """
+        visited[i] = True
+        try:
+            for j in self.graph[i]:
+                if visited[j] is False:
+                    self._topological_sort_helper(j, visited, stack)
+        except KeyError as ex:
+            pass
+
+        stack.insert(0, i)
+
+    def topological_sort(self) -> List:
+        """
+        Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering
+        of vertices such that for every directed edge uv, vertex u comes before v in the ordering
+        :return: List as a stack of vertices
+        """
+        stack = []
+        vertices_list = list(self.vertices)
+        vertices_list.sort()
+        visited = {v: False for v in vertices_list}
+        for v in vertices_list:
+            if visited[v] is False:
+                self._topological_sort_helper(v, visited, stack)
+
+        return stack
 
     def __str__(self):
         desc_str = self.description + ' created at ' + str(self.creation_time) + ' and has ' + str(self.num_edges) + \
