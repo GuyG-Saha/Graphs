@@ -96,30 +96,38 @@ class Graph:
             if v not in discovered and v not in blackened:
                 discovered, blackened = self.dfs_visit(v, discovered, blackened)
 
-    def dfs_visit(self, v, discovered, blackened):
-        discovered.add(v)
-        # Cycles detection
-        try:
-            for u in self.graph[v]:
-                if u in discovered:
-                    print(f"Cycle detected: found a back edge from {u} to {v}.")
-        except KeyError as ex:
-            print('leaf')
+    def dfs_visit(self, u, colored_vertices: dict) -> bool:
+        """
+        Recursive method that performs DFS visits to vertices
+        :param u: This vertice is being processed or is in function call stacl
+        :param colored_vertices: colors of vertices in graph
+        :return: Boolean
+        """
+        colored_vertices[u] = 'GRAY'
+        if self.graph[u]:
+            for v in self.graph[u]:
+                if colored_vertices[v] is 'GRAY':
+                    return True
+                if colored_vertices[v] is 'WHITE' and self.dfs_visit(v, colored_vertices) is True:
+                    return True
 
-            if u not in blackened:
-                self.dfs_visit(u, discovered, blackened)
-        try:
-            discovered.remove(v)
-            blackened.remove(v)
-            return discovered, blackened
-        except KeyError as ex:
-            pass
+        colored_vertices[u] = 'BLACK'
+        return False
 
     def is_dag(self) -> bool:
         """
         This method checks if a given graph is Directed & A-cyclic
         :return: Boolean
         """
+        vertices_list = list(self.vertices)
+        vertices_list.sort()
+        colored_vertices = {v: 'WHITE' for v in vertices_list}
+        for u in colored_vertices:
+            if colored_vertices[u] is 'WHITE':
+                if self.dfs_visit(u, colored_vertices) is True:
+                    return False
+        return True
+
         return self.dfs()
 
     def _dijkstra_algorithm(self, start: str, end: str) -> float:
