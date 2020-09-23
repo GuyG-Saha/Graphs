@@ -63,6 +63,65 @@ class Graph:
         """
         return symbol in self.vertices
 
+    def _get_all_leaves(self) -> List:
+        """
+        This method searches for all leaf vertices in the graph (vertices without children nodes)
+        :return: List of chars that represent leaf vertices
+        """
+        keys_set = set(self.graph.keys())
+        values_set = [c for sublist in self.graph.values() for c in sublist]
+        values_set = set(values_set)
+        diff = values_set.difference(keys_set)
+        return list(diff)
+
+    def _add_none_ending_to_leaves(self):
+        """
+        Adds None child to leaf_vertices
+        """
+        leaf_vertices = self._get_all_leaves()
+        for i in leaf_vertices:
+            self.graph[i] = None
+
+    def dfs(self):
+        """
+        Method performs Depth-First Search in the graph
+        :return:
+        """
+        discovered = set()
+        blackened = set()
+        vertices_list = list(self.vertices)
+        vertices_list.sort()
+
+        for v in vertices_list:
+            if v not in discovered and v not in blackened:
+                discovered, blackened = self.dfs_visit(v, discovered, blackened)
+
+    def dfs_visit(self, v, discovered, blackened):
+        discovered.add(v)
+        # Cycles detection
+        try:
+            for u in self.graph[v]:
+                if u in discovered:
+                    print(f"Cycle detected: found a back edge from {u} to {v}.")
+        except KeyError as ex:
+            print('leaf')
+
+            if u not in blackened:
+                self.dfs_visit(u, discovered, blackened)
+        try:
+            discovered.remove(v)
+            blackened.remove(v)
+            return discovered, blackened
+        except KeyError as ex:
+            pass
+
+    def is_dag(self) -> bool:
+        """
+        This method checks if a given graph is Directed & A-cyclic
+        :return: Boolean
+        """
+        return self.dfs()
+
     def _dijkstra_algorithm(self, start: str, end: str) -> float:
         """
         Implementation of Dijkstra's algorithm to find shortest weighted path
