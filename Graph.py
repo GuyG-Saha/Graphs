@@ -82,20 +82,6 @@ class Graph:
         for i in leaf_vertices:
             self.graph[i] = None
 
-    def dfs(self):
-        """
-        Method performs Depth-First Search in the graph
-        :return:
-        """
-        discovered = set()
-        blackened = set()
-        vertices_list = list(self.vertices)
-        vertices_list.sort()
-
-        for v in vertices_list:
-            if v not in discovered and v not in blackened:
-                discovered, blackened = self.dfs_visit(v, discovered, blackened)
-
     def dfs_visit(self, u, colored_vertices: dict) -> bool:
         """
         Recursive method that performs DFS visits to vertices
@@ -117,7 +103,7 @@ class Graph:
     def is_dag(self) -> bool:
         """
         This method checks if a given graph is Directed & A-cyclic
-        :return: Boolean
+        :return: True if no cycles in the graph, False if there is at least one cycle
         """
         vertices_list = list(self.vertices)
         vertices_list.sort()
@@ -127,8 +113,6 @@ class Graph:
                 if self.dfs_visit(u, colored_vertices) is True:
                     return False
         return True
-
-        return self.dfs()
 
     def _dijkstra_algorithm(self, start: str, end: str) -> float:
         """
