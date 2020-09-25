@@ -1,12 +1,26 @@
 
 from Graph import *
+from fileLoader import FileDataUploader
 
+Gr = FileDataUploader.create_graph_from_csv_data('My first Graph!', 'C:/Users/guyg/PycharmProjects/Graphs/data.csv')
+
+Gr.add_none_ending_to_leaves()
+print(Gr.graph)
+
+if Gr.is_dag():
+    print('No cycles')
+else:
+    print('Cycle detected in graph!')
+
+
+
+'''
 Gr = Graph('My first Graph!')
 
 Gr.add_new_edge('A', 'B', 4.5)
 Gr.add_new_edge('A', 'C', 4.2)
 Gr.add_new_edge('B', 'C', 3.8)
-Gr.add_new_edge('D', 'A', 7.1)
+#Gr.add_new_edge('D', 'A', 7.1)
 Gr.add_new_edge('B', 'D', 3.7)
 Gr.add_new_edge('C', 'D', 2.3)
 Gr.add_new_edge('D', 'E', 4.7)
@@ -33,3 +47,4 @@ Gr._add_none_ending_to_leaves()
 print(Gr.graph)
 
 print(Gr.is_dag())
+'''

@@ -25,13 +25,20 @@ class Graph:
         """
         ...
 
-    def add_new_edge(self, start: str, end: str, weight: float) -> Edge:
+    def add_new_edge(self, start: str, end: str, weight: float = 0) -> Edge:
         """
+        The method adds a new edge to the graph if it hasn't added before and if it is not cyclic
         :param start: Start Edge
         :param end: End Edge
         :param weight: Float value for weighted edge
         :return: Edge object within the graph
         """
+        if start == end:
+            return None
+        if start in self.vertices and end in self.vertices:
+            if self.graph.get(start, None):
+                if end in self.graph[start]:
+                    return None
         self.vertices.add(start) if start not in self.vertices else ''
         self.vertices.add(end) if end not in self.vertices else ''
         if start in self.graph.keys():
@@ -74,7 +81,7 @@ class Graph:
         diff = values_set.difference(keys_set)
         return list(diff)
 
-    def _add_none_ending_to_leaves(self):
+    def add_none_ending_to_leaves(self):
         """
         Adds None child to leaf_vertices
         """
@@ -191,7 +198,7 @@ class Graph:
         Helper recursive function for topological sort
         :param i: index of current vertex to handle
         :param visited: list of visited vertices
-        :param stack: utility data structure
+        :param stack: utility data.csv structure
         :return:
         """
         visited[i] = True
