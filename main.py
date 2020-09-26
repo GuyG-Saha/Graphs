@@ -1,18 +1,25 @@
+from datetime import datetime
 
 from Graph import *
 from fileLoader import FileDataUploader
 
 Gr = FileDataUploader.create_graph_from_csv_data('My first Graph!', 'C:/Users/guyg/PycharmProjects/Graphs/data.csv')
 
-Gr.add_none_ending_to_leaves()
-print(Gr.graph)
+# Gr.add_none_ending_to_leaves()
 
 if Gr.is_dag():
     print('No cycles')
 else:
     print('Cycle detected in graph!')
 
+start = datetime.now()
 
+print(Gr.shortest_path('A', 'Z'))
+print(Gr.shortest_path('A', 'Z', True))
+
+end = datetime.now()
+
+print(f'Time elapsed for 2 algorithms: {end - start}')
 
 '''
 Gr = Graph('My first Graph!')

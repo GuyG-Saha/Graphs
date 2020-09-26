@@ -97,7 +97,7 @@ class Graph:
         :return: Boolean
         """
         colored_vertices[u] = 'GRAY'
-        if self.graph[u]:
+        if self.graph.get(u, None):
             for v in self.graph[u]:
                 if colored_vertices[v] is 'GRAY':
                     return True
@@ -154,7 +154,7 @@ class Graph:
                             dist[v] = computed_weight
                             prev[v] = u
             except KeyError as ex:
-                return dist[end]
+                pass
         return dist[end]
 
     def shortest_path(self, start: str, end: str, weighted: bool = False, path: List = []) -> [List, float]:
