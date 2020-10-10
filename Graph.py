@@ -4,19 +4,39 @@ from datetime import datetime
 from typing import List
 
 from Edge import Edge
+from Vertex import Vertex
 from exceptions import GraphException, VertexUnavailable
 
 __all__ = ['Graph']
 
 
 class Graph:
-    def __init__(self, description: str):
-        self.graph = collections.defaultdict()
-        self.weights = collections.defaultdict()
-        self.vertices = set()
-        self.num_edges = 0
+    def __init__(self, description: str, symbols_only=True):
+        self._graph = collections.defaultdict()
+        self._weights = collections.defaultdict()
+        self.symbols_only = symbols_only
+        self._vertex_symbols = set()
+        self._vertices = {}
+        self._num_edges = 0
+        self._average_degree = 0
         self.creation_time = datetime.now()
         self.description = description
+
+    @property
+    def edges(self):
+        return self._weights
+
+    @property
+    def weights(self):
+        return self._weights
+
+    @property
+    def vertex_symbols(self):
+        return self._vertex_symbols
+
+    @property
+    def average_degree(self):
+        return self._average_degree
 
     def add_edge(self, edge: Edge):
         """
@@ -35,19 +55,19 @@ class Graph:
         """
         if start == end:
             return None
-        if start in self.vertices and end in self.vertices:
-            if self.graph.get(start, None):
-                if end in self.graph[start]:
+        if start in self.vertex_symbols and end in self.vertex_symbols:
+            if self._graph.get(start, None):
+                if end in self._graph[start]:
                     return None
-        self.vertices.add(start) if start not in self.vertices else ''
-        self.vertices.add(end) if end not in self.vertices else ''
-        if start in self.graph.keys():
-            self.graph[start].append(end)
+        self.vertex_symbols.add(start) if start not in self.vertex_symbols else ''
+        self.vertex_symbols.add(end) if end not in self.vertex_symbols else ''
+        if start in self._graph.keys():
+            self._graph[start].append(end)
         else:
-            self.graph[start] = [end]
+            self._graph[start] = [end]
         e = Edge(start, end, weight)
         self.weights[(start, end)] = weight
-        self.num_edges += 1
+        self._num_edges += 1
         return e
 
     def get_edge_weight(self, start: str, end: str) -> float:
@@ -68,15 +88,15 @@ class Graph:
         :param symbol: Character
         :return: Boolean
         """
-        return symbol in self.vertices
+        return symbol in self.vertex_symbols
 
     def _get_all_leaves(self) -> List:
         """
         This method searches for all leaf vertices in the graph (vertices without children nodes)
         :return: List of chars that represent leaf vertices
         """
-        keys_set = set(self.graph.keys())
-        values_set = [c for sublist in self.graph.values() for c in sublist]
+        keys_set = set(self._graph.keys())
+        values_set = [c for sublist in self._graph.values() for c in sublist]
         values_set = set(values_set)
         diff = values_set.difference(keys_set)
         return list(diff)
@@ -87,7 +107,7 @@ class Graph:
         """
         leaf_vertices = self._get_all_leaves()
         for i in leaf_vertices:
-            self.graph[i] = None
+            self._graph[i] = None
 
     def dfs_visit(self, u, colored_vertices: dict) -> bool:
         """
@@ -97,8 +117,8 @@ class Graph:
         :return: Boolean
         """
         colored_vertices[u] = 'GRAY'
-        if self.graph.get(u, None):
-            for v in self.graph[u]:
+        if self._graph.get(u, None):
+            for v in self._graph[u]:
                 if colored_vertices[v] is 'GRAY':
                     return True
                 if colored_vertices[v] is 'WHITE' and self.dfs_visit(v, colored_vertices) is True:
@@ -112,7 +132,7 @@ class Graph:
         This method checks if a given graph is Directed & A-cyclic
         :return: True if no cycles in the graph, False if there is at least one cycle
         """
-        vertices_list = list(self.vertices)
+        vertices_list = list(self.vertex_symbols)
         vertices_list.sort()
         colored_vertices = {v: 'WHITE' for v in vertices_list}
         for u in colored_vertices:
@@ -132,7 +152,7 @@ class Graph:
         dist = {}
         prev = {}
         visited = set()
-        vertices_list = list(self.vertices)
+        vertices_list = list(self.vertex_symbols)
         vertices_list.sort()
         for v in vertices_list:
             dist[v] = float('inf')
@@ -147,7 +167,7 @@ class Graph:
                 dist[u] = self.get_edge_weight(start, u)
             visited.add(u)
             try:
-                for v in self.graph[u]:
+                for v in self._graph[u]:
                     if v not in visited:
                         computed_weight = dist[u] + self.get_edge_weight(u, v)
                         if computed_weight < dist[v]:
@@ -174,14 +194,14 @@ class Graph:
             if start == end:
                 return path
             try:
-                if end in self.graph[start]:
+                if end in self._graph[start]:
                     path.append(end)
                     return path
             except KeyError as ex:
                 pass
             shortest_path = None
             try:
-                for vertex in self.graph[start]:
+                for vertex in self._graph[start]:
                     if vertex not in path:
                         new_path = self.shortest_path(vertex, end, weighted, path)
                         if new_path:
@@ -203,13 +223,37 @@ class Graph:
         """
         visited[i] = True
         try:
-            for j in self.graph[i]:
+            for j in self._graph[i]:
                 if visited[j] is False:
                     self._topological_sort_helper(j, visited, stack)
         except KeyError as ex:
             pass
 
         stack.insert(0, i)
+
+    def __apply_vertex_objects(self):
+        """
+        If the graph is represented by symbols only use this method to represent its vertices by Vertex objects.
+        Populate self._vertices dictionary
+        """
+        for v in self.vertex_symbols:
+            self._vertices[v] = Vertex(v)
+        for v in self._graph:
+            self._vertices[v].degree = len(self._graph[v])
+
+    def _compute_avg_degree(self):
+        """
+        This method computes the average degree of vertices in the graph in case vertices are not symbols only
+        """
+        total = 0
+        n = len(self._vertices)
+        if self.symbols_only:
+            n = len(self.vertex_symbols)
+            self.__apply_vertex_objects()
+        for vertex in self._vertices.values():
+            total += vertex.degree
+
+        self._average_degree = total / n
 
     def topological_sort(self) -> List:
         """
@@ -218,7 +262,7 @@ class Graph:
         :return: List as a stack of vertices
         """
         stack = []
-        vertices_list = list(self.vertices)
+        vertices_list = list(self.vertex_symbols)
         vertices_list.sort()
         visited = {v: False for v in vertices_list}
         for v in vertices_list:
@@ -228,7 +272,8 @@ class Graph:
         return stack
 
     def __str__(self):
-        desc_str = self.description + ' created at ' + str(self.creation_time) + ' and has ' + str(self.num_edges) + \
-                   ' edges' + ' and ' + str(len(self.vertices)) + ' vertices'
+        desc_str = self.description + ' created at ' + str(self.creation_time) + ' and has ' + str(self._num_edges) + \
+                   ' edges' + ' and ' + str(len(self.vertex_symbols)) + ' vertices. \nAverage degree is ' \
+                   + str(self._average_degree)
         return desc_str
 

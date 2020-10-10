@@ -5,21 +5,24 @@ from fileLoader import FileDataUploader
 
 Gr = FileDataUploader.create_graph_from_csv_data('My first Graph!', 'C:/Users/guyg/PycharmProjects/Graphs/data.csv')
 
-# Gr.add_none_ending_to_leaves()
+assert (Gr.is_dag()) is True
 
-if Gr.is_dag():
-    print('No cycles')
-else:
-    print('Cycle detected in graph!')
+print(Gr.shortest_path('C', 'H'))
+print(Gr.shortest_path('C', 'H', True))
 
-start = datetime.now()
+assert Gr.average_degree is 0
 
-print(Gr.shortest_path('A', 'Z'))
-print(Gr.shortest_path('A', 'Z', True))
+Gr._compute_avg_degree()
 
-end = datetime.now()
+print(Gr)
 
-print(f'Time elapsed for 2 algorithms: {end - start}')
+
+
+
+
+
+
+
 
 '''
 Gr = Graph('My first Graph!')

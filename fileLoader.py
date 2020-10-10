@@ -24,8 +24,6 @@ class FileDataUploader:
                                            float(row.split(DEL)[WEIGHT]))
                 line_count += 1
 
-            print(new_graph)
-            print(new_graph.graph)
             return new_graph
 
 
