@@ -13,20 +13,36 @@ class Edge:
         :param weight: Numeric value
         :param directed: Boolean
         """
-        self.start = start
-        self.end = end
-        self.weight = weight
-        self.directed = directed
+        self._start = start
+        self._end = end
+        self._weight = weight
+        self._directed = directed
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
+
+    @property
+    def weight(self):
+        return self._weight
+
+    @weight.setter
+    def weight(self, w):
+        self._weight = w
 
     def reverse(self):
         """
         reverse a directed edge
         :return: The edge reversed
         """
-        if self.directed:
-            tmp = self.start
-            self.start = self.end
-            self.end = tmp
+        if self._directed:
+            tmp = self._start
+            self._start = self._end
+            self._end = tmp
             return self
         else:
             return

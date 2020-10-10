@@ -18,6 +18,7 @@ class Graph:
         self._vertex_symbols = set()
         self._vertices = {}
         self._num_edges = 0
+        self._total_degrees = 0
         self._average_degree = 0
         self.creation_time = datetime.now()
         self.description = description
@@ -234,26 +235,44 @@ class Graph:
     def __apply_vertex_objects(self):
         """
         If the graph is represented by symbols only use this method to represent its vertices by Vertex objects.
-        Populate self._vertices dictionary
+        Populates self._vertices dictionary
         """
         for v in self.vertex_symbols:
             self._vertices[v] = Vertex(v)
         for v in self._graph:
             self._vertices[v].degree = len(self._graph[v])
+        self.symbols_only = False
+
+    def _compute_total_degrees(self):
+        """
+        Helper method for compute_avg_degree to sum up all degrees in the graph
+        Populates self._total_degrees
+        """
+        total = 0
+        if not self.symbols_only:
+            for vertex in self._vertices.values():
+                total += vertex.degree
+        self._total_degrees = total
 
     def _compute_avg_degree(self):
         """
         This method computes the average degree of vertices in the graph in case vertices are not symbols only
         """
-        total = 0
         n = len(self._vertices)
         if self.symbols_only:
             n = len(self.vertex_symbols)
             self.__apply_vertex_objects()
-        for vertex in self._vertices.values():
-            total += vertex.degree
+        if self._total_degrees == 0:
+            self._compute_total_degrees()
 
-        self._average_degree = total / n
+        self._average_degree = self._total_degrees / n
+
+    def degree_sum_formula(self):
+        """
+        This method returns true if the graph is complete according to the Degree sum formula
+        :return: Boolean
+        """
+        return self._total_degrees == 2 * self._num_edges
 
     def topological_sort(self) -> List:
         """
